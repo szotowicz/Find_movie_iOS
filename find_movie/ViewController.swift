@@ -10,6 +10,11 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var searchBarView: UISearchBar!
+    @IBOutlet weak var tableView: UITableView!
+    
+    let moviesList = ["Pierwszy", "Drugi", "Trzeci"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
