@@ -10,9 +10,7 @@ import UIKit
 
 class TableViewCell: UITableViewCell {
 
-    @IBOutlet weak var imgView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var yearLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
