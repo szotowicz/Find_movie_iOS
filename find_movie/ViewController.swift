@@ -8,24 +8,24 @@
 
 import UIKit
 
-// https://www.youtube.com/watch?v=4RyhnwIRjpA  8:55
-class ViewController: UIViewController, UITableViewDataSource {
+// https://www.youtube.com/watch?v=4RyhnwIRjpA
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
     @IBOutlet weak var searchBarView: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     
     var moviesList = [Movie]()
-    var moviesList2 = [Movie]()
-    
-    //let moviesList = ["Pierwszy", "Drugi", "Trzeci"]
+    var currentMoviesList = [Movie]()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setUpMovies()
-        useApi()
+        //setUpFakeMovies()
+        useApi(keyword: "batman")
+        setUpSearchBar()
     }
     
-    private func setUpMovies() {
+    private func setUpFakeMovies() {
         moviesList.append(Movie(
             title: "Batman",
             year: "1999",
@@ -39,18 +39,10 @@ class ViewController: UIViewController, UITableViewDataSource {
             imdbID: "xxx",
             type: "movie",
             poster: "https://m.media-amazon.com/images/M/MV5BOGZmYzVkMmItM2NiOS00MDI3LWI4ZWQtMTg0YWZkODRkMmViXkEyXkFqcGdeQXVyODY0NzcxNw@@._V1_SX300.jpg"))
-        
-        moviesList.append(Movie(
-            title: "nextt",
-            year: "2010",
-            imdbID: "xxx",
-            type: "movie",
-            poster: "https://m.media-amazon.com/images/M/MV5BYThjYzcyYzItNTVjNy00NDk0LTgwMWQtYjMwNmNlNWJhMzMyXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg"))
     }
     
-    private func useApi() {
-        let url = URL(string: "https://www.omdbapi.com/?s=batman&apikey=23568a56")
-        //let url = URL(string: "https://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=b1b15e88fa797225412429c1c50c122a1")
+    private func useApi(keyword: String) {
+        let url = URL(string: "https://www.omdbapi.com/?s=" + keyword.lowercased() + "&apikey=23568a56")
         
         let task = URLSession.shared.dataTask(with: url!) {
             (data, response, error) in
@@ -64,36 +56,25 @@ class ViewController: UIViewController, UITableViewDataSource {
                     if let results = jsonArray["Search"] as! [Any]?{
                         for result in results {
                             if let resDictionary = result as? [String : Any] {
-                                let title = resDictionary["Title"] as! String
-                                let year = resDictionary["Year"] as! String
-                                print(title)
+                                //let title = "asdasa"//resDictionary["Title"] as! String
+                                //let year = resDictionary["Year"] as! String
+                                //print(title)
+                                //print(year)
+                                self.moviesList.append(Movie(
+                                    title: resDictionary["Title"] as! String))
+                                self.currentMoviesList.append(Movie(
+                                    title: resDictionary["Title"] as! String))
+                                
                             }
+                            self.tableView.reloadData()
                             //"Title":"Batman Begins",
                             //"Year":"2005",
                             //"imdbID":"tt0372784",
                             //"Type":"movie",
                             //"Poster":"https://m.media-
-                            
                             //https://stackoverflow.com/questions/49282461/creating-objects-from-json-data-using-google-places-api-in-swift
                             
-                            //let title = result["Title"] as! [String]
-                            //print("----")
-                            //print(result)
                         }
-                    }
-                }
-                
-                
-                if let urlContent = data {
-                    do {
-                        let jsonResult = try JSONSerialization.jsonObject(with: urlContent, options:
-                            JSONSerialization.ReadingOptions.mutableContainers) as AnyObject
-                        //print(jsonResult)
-                        //print(jsonResult["Search"])
-                        let json = jsonResult["Search"]
-                        
-                    } catch {
-                        print("Json Processing Failed!")
                     }
                 }
             }
@@ -101,17 +82,33 @@ class ViewController: UIViewController, UITableViewDataSource {
         task.resume()
     }
     
+    private func setUpSearchBar() {
+        searchBarView.delegate = self
+    }
+    
+    // Table view
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return moviesList.count
+        return currentMoviesList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as? TableViewCell
             else { return UITableViewCell() }
         
-        cell.titleLabel.text = moviesList[indexPath.row].title
+        cell.titleLabel.text = currentMoviesList[indexPath.row].title
         
         return cell
+    }
+    
+    // Search bar
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        currentMoviesList.removeAll()
+        useApi(keyword: searchBar.text!)
+        tableView.reloadData()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        
     }
 }
 
@@ -129,6 +126,14 @@ class Movie	{
         self.imdbID = imdbID;
         self.type = type;
         self.poster = poster;
+    }
+    
+    init(title: String) {
+        self.title = title;
+        self.year = "";
+        self.imdbID = ""
+        self.type = "";
+        self.poster = "";
     }
 }
 
