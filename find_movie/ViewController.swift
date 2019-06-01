@@ -14,7 +14,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var searchBarView: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     
-    var moviesList = [Movie]()
     var currentMoviesList = [Movie]()
 
     
@@ -26,14 +25,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     private func setUpFakeMovies() {
-        moviesList.append(Movie(
+        currentMoviesList.append(Movie(
             title: "Batman",
             year: "1999",
             imdbID: "xxx",
             type: "movie",
             poster: "https://m.media-amazon.com/images/M/MV5BYThjYzcyYzItNTVjNy00NDk0LTgwMWQtYjMwNmNlNWJhMzMyXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg"))
     
-        moviesList.append(Movie(
+        currentMoviesList.append(Movie(
             title: "X-man",
             year: "1111",
             imdbID: "xxx",
@@ -60,10 +59,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                                 //let year = resDictionary["Year"] as! String
                                 //print(title)
                                 //print(year)
-                                self.moviesList.append(Movie(
-                                    title: resDictionary["Title"] as! String))
                                 self.currentMoviesList.append(Movie(
-                                    title: resDictionary["Title"] as! String))
+                                    title: resDictionary["Title"] as! String,
+                                    year: resDictionary["Year"] as! String,
+                                    imdbID:  resDictionary["imdbID"] as! String,
+                                    type:  resDictionary["Type"] as! String,
+                                    poster:  resDictionary["Poster"] as! String))
                                 
                             }
                             self.tableView.reloadData()
@@ -98,6 +99,24 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         cell.titleLabel.text = currentMoviesList[indexPath.row].title
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedIdx = indexPath.row
+        //print(selectedIdx)
+        
+        let selectedMovie = currentMoviesList[selectedIdx]
+        //print(selectedMovie.imdbID)
+        //let url = URL(string: "https://www.omdbapi.com/?i=" + selectedMovie.imdbID + "&apikey=23568a56")
+        
+        //let selectedMovieController = ViewController2()
+        //self.navigationController?.pushViewController(selectedMovieController, animated: true)
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let newViewController = storyBoard.instantiateViewController(withIdentifier: "movieController") as! ViewController2
+        newViewController.movieTitle = selectedMovie.title
+        newViewController.movieYear = selectedMovie.year
+        newViewController.moviePoster = selectedMovie.poster
+        self.present(newViewController, animated: true, completion: nil)
     }
     
     // Search bar
